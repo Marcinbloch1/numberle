@@ -39,11 +39,20 @@ $color-key-active: #565758;
   flex-direction: column;
   align-items: center;
   // Używamy paddingu opartego o wysokość, żeby elementy nie dotykały krawędzi
-  padding: 5dvh 1rem;
   min-height: 100dvh;
   box-sizing: border-box;
-  justify-content: center; // Centrowanie wszystkiego w pionie na dużych ekranach
+  //justify-content: center; // Centrowanie wszystkiego w pionie na dużych ekranach
   gap: 2dvh; // Elastyczny odstęp między nagłówkiem, gridem i klawiaturą
+
+  padding: env(safe-area-inset-top) 1rem env(safe-area-inset-bottom);
+
+  // Zapobiega przesuwaniu całości
+  overflow: hidden;
+  touch-action: none; // Wyłącza gesty przeglądarki (zoom, scroll)
+
+  //display: flex;
+  //flex-direction: column;
+  justify-content: space-around; // Lepiej rozłoży elementy w pionie
 
   //display: flex;
   //flex-direction: column;
