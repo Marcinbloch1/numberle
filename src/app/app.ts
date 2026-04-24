@@ -18,7 +18,7 @@ export interface RowStats {
 })
 export class App {
   readonly CODE_LENGTH = 4;
-  readonly MAX_ATTEMPTS = 6;
+  readonly MAX_ATTEMPTS = 7;
 
   // Układ: 1-5 (rząd 1), 6-0 (rząd 2), ENTER i ⌫ (rząd 3)
   readonly KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'ENTER', '⌫'];

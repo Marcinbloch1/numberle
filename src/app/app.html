@@ -1,6 +1,6 @@
 <main class="numberle">
   <header class="numberle__header">
-    <h2 class="numberle__title">Numberle</h2>
+    <span class="numberle__title">Numberle</span>
     <button
       class="numberle__header-btn"
       (click)="generateNewCode(); $any($event.target).blur()"
@@ -15,12 +15,12 @@
     </button>
   </header>
 
-  <p class="numberle__message" [class.numberle__message--game-over]="gameOver()">
+  <span class="numberle__message" [class.numberle__message--game-over]="gameOver()">
     {{ message() }}
-  </p>
+  </span>
 
   <div class="numberle__grid">
-    @for (attemptIdx of [0,1,2,3,4,5]; track attemptIdx) {
+    @for (attemptIdx of [0,1,2,3,4,5,6]; track attemptIdx) {
       <div class="numberle__row-container">
 
         <div class="numberle__row">
