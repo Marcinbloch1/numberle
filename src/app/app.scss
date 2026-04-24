@@ -1,0 +1,318 @@
+// Zmienne kolorów
+$color-bg: #121213;
+$color-border: #3a3a3c;
+$color-correct: #538d4e;
+$color-present: #b59f3b;
+$color-absent: #3a3a3c;
+$color-text: #ffffff;
+$color-key: #818384;
+$color-key-active: #565758;
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+    border-color: $color-border;
+  }
+  50% {
+    transform: scale(1.1); // Lekkie powiększenie
+    border-color: lighten($color-border, 20%);
+  }
+  100% {
+    transform: scale(1);
+    border-color: lighten($color-border, 10%);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.numberle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // Używamy paddingu opartego o wysokość, żeby elementy nie dotykały krawędzi
+  padding: 5dvh 1rem;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  justify-content: center; // Centrowanie wszystkiego w pionie na dużych ekranach
+  gap: 2dvh; // Elastyczny odstęp między nagłówkiem, gridem i klawiaturą
+
+  //display: flex;
+  //flex-direction: column;
+  //align-items: center;
+  //justify-content: center;
+  //min-height: 100vh;
+  background-color: $color-bg;
+  color: $color-text;
+  //transition: transform 0.3s ease;
+  //font-family: 'Segoe UI', Tahoma, sans-serif;
+
+  &__header {
+    width: 100%;
+    // Klawiatura i grid będą miały max-width w vmin
+    max-width: 80vmin;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  &__title {
+    font-size: 2rem;
+    margin: 1.25rem 0; // 20px
+    //text-transform: uppercase;
+    letter-spacing: 0.125rem;
+  }
+
+  &__header-btn {
+    position: absolute;
+    right: 1rem;
+    background: transparent;
+    border: 0.125rem solid $color-border;
+    color: $color-text;
+
+    // Skalowanie przycisku restartu
+    width: clamp(2.2rem, 10vw, 2.8rem);
+    height: clamp(2.2rem, 10vw, 2.8rem);
+
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background-color: $color-border;
+      transform: rotate(90deg); // Fajny efekt przy najechaniu
+    }
+
+    &:active {
+      transform: scale(0.9) rotate(180deg);
+    }
+  }
+
+  &__message {
+    font-size: 1.2rem; // ~19px
+    margin-bottom: 1.25rem; // 20px
+    height: 1.5rem; // 24px
+    transition: transform 0.3s ease;
+
+    &--game-over {
+      color: #ffcc00;
+      font-weight: bold;
+      transform: scale(1.1);
+    }
+  }
+
+  &__grid {
+    //flex-grow: 1; // Pozwala siatce zająć dostępną przestrzeń w środku
+    //display: flex;
+    //flex-direction: column;
+    //justify-content: center; // Centruje grę w pionie
+    //gap: 0.5rem;
+    //width: 100%;
+    //max-width: fit-content;
+
+    flex-grow: 0; // Nie pozwalamy gridowi "puchnąć" bez sensu
+    display: flex;
+    flex-direction: column;
+    gap: 1vmin;
+    width: 100%;
+    max-width: 80vmin; // To sprawi, że na iPadzie gra będzie większa
+
+    // Wyrównanie szerokości do klawiatury
+    //width: clamp(18rem, 80vw, 25rem);
+  }
+
+  &__row-container {
+    display: grid;
+    // Zwiększamy proporcje bocznych kolumn, by hinty miały miejsce
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__row {
+    display: flex;
+    gap: 0.5rem;
+    grid-column: 2; // Zawsze w środkowej kolumnie
+  }
+
+  &__cell {
+    // Używamy vmin dla komórek - będą idealnie reagować na rozmiar ekranu
+    width: clamp(3rem, 15vmin, 5rem);
+    height: clamp(3rem, 15vmin, 5rem);
+    font-size: clamp(1.5rem, 7vmin, 2.5rem);
+    border-radius: 0.5rem;
+
+    border: 0.125rem solid $color-border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+
+    //font-size: clamp(1.5rem, 6vw, 2rem);
+
+    line-height: 1;
+    background-color: transparent; // Neutralne tło
+
+    transition: border-color 0.2s ease;
+
+    &--pop {
+      animation: pop 0.3s ease-in-out;
+      border-color: lighten($color-border, 15%);
+    }
+
+    &--active {
+      border-color: $color-key;
+    }
+  }
+
+  &__hints {
+    //display: flex;
+    //flex-direction: column;
+    //gap: 0.25rem;23452345
+    //min-width: 2.5rem;
+
+    //animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    grid-column: 3; // Zawsze w prawej kolumnie
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 0.75rem; // Odstęp od cyfr
+
+    // Klucz do stabilności:
+    // Jeśli nie ma jeszcze próby, kontener jest ukryty, ale nadal zajmuje miejsce
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-10px);
+    //transition: opacity 0.3s ease;
+
+    &--visible {
+      visibility: visible;
+      opacity: 1;
+      transform: translateX(0);
+      // Animacja odpala się tylko w momencie dodania tej klasy
+      animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+  }
+
+  &__hint {
+    // Używamy stałej szerokości dla hintów, aby tekst "1" i "0" nie zmieniał szerokości kontenera
+    width: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(0.7rem, 3vw, 0.85rem);
+    padding: 0.15rem 0;
+    border-radius: 0.2rem;
+    text-align: center;
+    font-weight: bold;
+
+    &--correct { background-color: $color-correct; }
+    &--wrong { background-color: $color-present; }
+  }
+
+  &__keyboard {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    //gap: 0.4rem;
+    //width: clamp(18rem, 80vw, 25rem);
+
+    //margin: 1.5rem auto 0;
+    //padding: 0.5rem;
+
+    width: 100%;
+    max-width: 85vmin; // Klawiatura nieco szersza od grida
+    gap: 1.5vmin;
+  }
+
+  &__key {
+    // 1. Skalowanie wysokości przycisku
+    // Min: 2.5rem (40px), Preferowana: 12vw, Max: 3.5rem (56px)
+    //height: clamp(2.8rem, 10dvh, 4.5rem);
+    height: 3rem;
+    font-size: clamp(1rem, 4vmin, 1.5rem);
+
+    border-radius: 0.3rem;
+    //border: none;
+    background-color: transparent;
+    border: solid 2px $color-absent;
+    color: $color-text;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.1s, transform 0.05s;
+
+    // Usuwamy podświetlenie na mobile
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+
+    // 2. Skalowanie czcionki na klawiszach
+    // Min: 1rem (16px), Preferowana: 5vw, Max: 1.3rem (21px)
+    //font-size: clamp(1rem, 5vw, 1.3rem);
+    font-weight: bold;
+    user-select: none; // Zapobiega zaznaczaniu tekstu "ENTER" przy szybkim pisaniu
+
+    &:active {
+      background-color: $color-key-active;
+      transform: scale(0.95); // Efekt wciśnięcia
+    }
+
+    &--enter {
+      grid-column: span 3;
+      background-color: darken($color-key, 15%);
+
+      // Mniejsza czcionka dla długiego napisu ENTER
+      font-size: clamp(0.75rem, 3.5vw, 0.9rem);
+    }
+
+    &--del {
+      grid-column: span 2;
+      background-color: $color-absent;
+    }
+
+
+    &:active {
+      background-color: $color-key-active;
+      transform: translateY(2px);
+    }
+
+    // Modyfikatory dla dolnego rzędu
+    &--enter {
+      grid-column: span 3; // ENTER zajmuje 3 kolumny
+      background-color: $color-absent;
+      font-size: 0.85rem;
+    }
+
+    &--del {
+      grid-column: span 2; // ⌫ zajmuje 2 kolumny
+      background-color: $color-absent;
+    }
+  }
+
+  &__reset-button {
+    margin-top: 1rem;
+    padding: 0.625rem 1.25rem;
+    background-color: $color-correct;
+    color: white;
+    border: none;
+    border-radius: 0.25rem; // 4px
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(1.1);
+    }
+  }
+}
