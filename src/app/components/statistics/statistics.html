@@ -1,0 +1,17 @@
+<section class="statistics">
+  <header>
+    <div class="statistics__header">Statistics</div>
+  </header>
+  <main>
+    <div class="statistics__main">Game played: <b>{{ gamePlayed }}</b></div>
+    <div class="statistics__main statistics__header--green">
+      Game won: <b>{{ gameWon }}</b>
+    </div>
+    <div class="statistics__main statistics__header--red">
+      Game lost: <b>{{ gameLost }}</b>
+    </div>
+  </main>
+  <footer class="statistics__footer">
+    <button (click)="close()" class="statistics__footer__button">Close</button>
+  </footer>
+</section>

@@ -22,6 +22,15 @@
         <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
       </svg>
     </button>
+
+    <button
+      class="numberle__statistics-btn"
+      (click)="openStatistics()"
+      title="Statystyki"
+      aria-label="Statystyki"
+    >
+      i
+    </button>
   </header>
 
   <span
@@ -41,6 +50,11 @@
           class="numberle__cell"
           [class.numberle__cell--pop]="isCurrent && !!currentGuess()[charIdx]"
           [class.numberle__cell--active]="isCurrent && currentGuess().length === charIdx"
+          [ngClass]="{
+        'numberle__cell--final-correct': gameOver() && getCellFinalStatus(attemptIdx, charIdx) === 'correct',
+        'numberle__cell--final-present': gameOver() && getCellFinalStatus(attemptIdx, charIdx) === 'present',
+        'numberle__cell--final-absent': gameOver() && getCellFinalStatus(attemptIdx, charIdx) === 'absent'
+     }"
         >
           @if (attempts()[attemptIdx]) { {{ attempts()[attemptIdx][charIdx] }} }
           @else if (isCurrent) { {{ currentGuess()[charIdx] }} }

@@ -1,4 +1,7 @@
 @use './app/variables' as var;
+@use '@angular/cdk' as cdk;
+
+@include cdk.overlay();
 
 * {
   font-family: 'Segoe UI', Tahoma, sans-serif;

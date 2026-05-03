@@ -1,7 +1,8 @@
-import { Component, HostListener, signal } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
+import { Component, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { KeyboardComponent } from "./components/keyboard/keyboard";
+import { ModalsService } from "./modals/modals.service";
+import { Defaults } from "./defaults/defaults";
 
 export type Status = "correct" | "present" | "absent" | "empty";
 
@@ -14,12 +15,15 @@ export interface RowStats {
   selector: "app-root",
   standalone: true,
   imports: [CommonModule, KeyboardComponent],
+  providers: [ModalsService],
   templateUrl: "./app.html",
   styleUrls: ["./app.scss"],
 })
 export class App {
   public readonly CODE_LENGTH = 4;
   public readonly MAX_ATTEMPTS = 7;
+
+  public readonly modalsService = inject(ModalsService);
 
   public targetCode = signal<string>("");
   public attempts = signal<string[]>([]);
@@ -31,16 +35,18 @@ export class App {
     this.generateNewCode();
   }
 
+  public openStatistics(): void {
+    this.modalsService.openStatisticsModal();
+  }
+
   public generateNewCode(): void {
     const uniqueDigits = new Set<string>();
 
-    // Losuj, dopóki Set nie będzie miał 4 unikalnych elementów
     while (uniqueDigits.size < this.CODE_LENGTH) {
       const randomDigit = Math.floor(Math.random() * 10).toString();
       uniqueDigits.add(randomDigit);
     }
 
-    // Zamień Set na stringa (np. "1234")
     const code = Array.from(uniqueDigits).join("");
 
     this.targetCode.set(code);
@@ -90,28 +96,58 @@ export class App {
     if (guess === this.targetCode()) {
       this.gameOver.set(true);
       this.message.set("Gratulacje! Wygrałeś! 🎉");
+      this._updateGameStats(true);
     } else if (newAttempts.length >= this.MAX_ATTEMPTS) {
       this.gameOver.set(true);
       this.message.set(`Koniec gry! Kod to: ${this.targetCode()}`);
+      this._updateGameStats(false);
     }
   }
 
-  private _getCellStatus(attemptIndex: number, charIndex: number): Status {
-    const guess = this.attempts()[attemptIndex];
-    if (!guess) return "empty";
-    const char = guess[charIndex];
+  public getCellFinalStatus(attemptIdx: number, charIdx: number): string {
+    if (!this.gameOver()) return "";
+
+    const guess = this.attempts()[attemptIdx];
+    if (!guess) return "";
+
     const target = this.targetCode();
+    const char = guess[charIdx];
 
-    if (char === target[charIndex]) return "correct";
-
-    const targetChars = target.split("");
-    const guessChars = guess.split("");
-    for (let i = 0; i < targetChars.length; i++) {
-      if (guessChars[i] === targetChars[i]) {
-        targetChars[i] = "_";
-        guessChars[i] = "*";
+    if (char === target[charIdx]) return "correct";
+    let targetOccurrences = 0;
+    for (let i = 0; i < target.length; i++) {
+      if (target[i] === char && guess[i] !== target[i]) {
+        targetOccurrences++;
       }
     }
-    return targetChars.includes(char) ? "present" : "absent";
+
+    let guessOccurrencesBefore = 0;
+    for (let i = 0; i < charIdx; i++) {
+      if (guess[i] === char && guess[i] !== target[i]) {
+        guessOccurrencesBefore++;
+      }
+    }
+
+    if (targetOccurrences > guessOccurrencesBefore) {
+      return "present";
+    }
+
+    return "absent";
+  }
+
+  private _updateGameStats(isGameWon: boolean): void {
+    if (isGameWon) {
+      let gamesWon = Number(localStorage.getItem(Defaults.GameWonKey)) ?? 0;
+      gamesWon++;
+      localStorage.setItem(Defaults.GameWonKey, JSON.stringify(gamesWon));
+    } else {
+      let gamesLost = Number(localStorage.getItem(Defaults.GameLostKey)) ?? 0;
+      gamesLost++;
+      localStorage.setItem(Defaults.GameLostKey, JSON.stringify(gamesLost));
+    }
+
+    let gamesPlayed = Number(localStorage.getItem(Defaults.GamePlayedKey)) ?? 0;
+    gamesPlayed++;
+    localStorage.setItem(Defaults.GamePlayedKey, JSON.stringify(gamesPlayed));
   }
 }

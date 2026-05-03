@@ -15,4 +15,8 @@ export namespace Defaults {
     Keyboard.Enter,
     Keyboard.Delete,
   ];
+
+  export const GamePlayedKey: string = "game-played";
+  export const GameWonKey: string = "game-win";
+  export const GameLostKey: string = "game-lost";
 }

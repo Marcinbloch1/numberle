@@ -98,6 +98,29 @@ $color-key-active: #565758;
     }
   }
 
+  &__statistics-btn {
+    position: absolute;
+    left: 1rem;
+    background: transparent;
+    border: 0.125rem solid $color-border;
+    color: $color-text;
+    width: clamp(2.2rem, 10vw, 2.8rem);
+    height: clamp(2.2rem, 10vw, 2.8rem);
+
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    &:hover {
+      background-color: $color-border;
+    }
+  }
+
   &__message {
     font-size: 1.1rem;
     margin: 0.5rem;
@@ -148,7 +171,8 @@ $color-key-active: #565758;
     line-height: 1;
     background-color: transparent;
 
-    transition: border-color 0.2s ease;
+    //transition: border-color 0.2s ease;
+    transition: background-color 0.5s ease, border-color 0.5s ease, transform 0.5s ease;
 
     &--pop {
       animation: pop 0.3s ease-in-out;
@@ -157,6 +181,26 @@ $color-key-active: #565758;
 
     &--active {
       border-color: $color-key;
+    }
+
+    &--final-correct {
+      background-color: $color-correct !important;
+      border-color: $color-correct !important;
+      color: white;
+      transform: rotateX(360deg);
+    }
+
+    &--final-present {
+      background-color: $color-present !important;
+      border-color: $color-present !important;
+      color: white;
+      transform: rotateX(360deg);
+    }
+
+    &--final-absent {
+      background-color: $color-absent !important;
+      border-color: $color-absent !important;
+      opacity: 0.6;
     }
   }
 
@@ -203,5 +247,11 @@ $color-key-active: #565758;
     &:hover {
       filter: brightness(1.1);
     }
+  }
+}
+
+@for $i from 1 through 4 {
+  .numberle__row .numberle__cell:nth-child(#{$i}) {
+    transition-delay: #{$i * 0.1}s;
   }
 }
