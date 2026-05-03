@@ -1,39 +1,37 @@
-import { Component, HostListener, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Component, HostListener, signal } from "@angular/core";
+import { RouterOutlet } from "@angular/router";
+import { CommonModule } from "@angular/common";
+import { KeyboardComponent } from "./components/keyboard/keyboard";
 
-export type Status = 'correct' | 'present' | 'absent' | 'empty';
+export type Status = "correct" | "present" | "absent" | "empty";
 
 export interface RowStats {
-  correctPos: number; // "Byki" - właściwa cyfra na właściwym miejscu
-  wrongPos: number;   // "Krowy" - właściwa cyfra, ale w złym miejscu
+  correctPos: number;
+  wrongPos: number;
 }
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './app.html',
-  styleUrls: ['./app.scss'],
+  imports: [CommonModule, KeyboardComponent],
+  templateUrl: "./app.html",
+  styleUrls: ["./app.scss"],
 })
 export class App {
-  readonly CODE_LENGTH = 4;
-  readonly MAX_ATTEMPTS = 7;
+  public readonly CODE_LENGTH = 4;
+  public readonly MAX_ATTEMPTS = 7;
 
-  // Układ: 1-5 (rząd 1), 6-0 (rząd 2), ENTER i ⌫ (rząd 3)
-  readonly KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'ENTER', '⌫'];
+  public targetCode = signal<string>("");
+  public attempts = signal<string[]>([]);
+  public currentGuess = signal<string>("");
+  public gameOver = signal<boolean>(false);
+  public message = signal<string>("Zgadnij 4 cyfry!");
 
-  targetCode = signal<string>('');
-  attempts = signal<string[]>([]);
-  currentGuess = signal<string>('');
-  gameOver = signal<boolean>(false);
-  message = signal<string>('Zgadnij 4 cyfry!');
-
-  constructor() {
+  public constructor() {
     this.generateNewCode();
   }
 
-  generateNewCode() {
+  public generateNewCode(): void {
     const uniqueDigits = new Set<string>();
 
     // Losuj, dopóki Set nie będzie miał 4 unikalnych elementów
@@ -43,104 +41,77 @@ export class App {
     }
 
     // Zamień Set na stringa (np. "1234")
-    const code = Array.from(uniqueDigits).join('');
+    const code = Array.from(uniqueDigits).join("");
 
     this.targetCode.set(code);
     this.attempts.set([]);
-    this.currentGuess.set('');
+    this.currentGuess.set("");
     this.gameOver.set(false);
-    this.message.set('Zgadnij 4 unikalne cyfry!');
+    this.message.set("Zgadnij 4 unikalne cyfry!");
   }
 
-  @HostListener('window:keydown', ['$event'])
-  handleKeyDown(event: KeyboardEvent) {
-    if (this.gameOver()) return;
+  public getStats(guess: string): RowStats {
+    const target = this.targetCode();
+    let correctPos = 0;
+    let wrongPos = 0;
 
-    if (event.key === 'Enter') {
-      this.handleInput('ENTER');
-    } else if (event.key === 'Backspace') {
-      this.handleInput('⌫');
-    } else if (/^\d$/.test(event.key)) {
-      this.handleInput(event.key);
+    const targetArr = target.split("");
+    const guessArr = guess.split("");
+
+    for (let i = 0; i < this.CODE_LENGTH; i++) {
+      if (guessArr[i] === targetArr[i]) {
+        correctPos++;
+        targetArr[i] = "T_USED"; // Oznaczamy jako zużyte
+        guessArr[i] = "G_USED";
+      }
     }
-  }
 
-  handleInput(key: string) {
-    if (this.gameOver()) return;
-
-    if (key === 'ENTER') {
-      this.submitGuess();
-    } else if (key === '⌫') {
-      this.currentGuess.update((prev) => prev.slice(0, -1));
-    } else if (this.currentGuess().length < this.CODE_LENGTH) {
-      this.currentGuess.update((prev) => prev + key);
+    for (let i = 0; i < this.CODE_LENGTH; i++) {
+      if (guessArr[i] !== "G_USED") {
+        const foundIndex = targetArr.indexOf(guessArr[i]);
+        if (foundIndex !== -1) {
+          wrongPos++;
+          targetArr[foundIndex] = "T_USED";
+        }
+      }
     }
+
+    return { correctPos, wrongPos };
   }
 
-  submitGuess() {
+  public submitGuess(): void {
     const guess = this.currentGuess();
     if (guess.length !== this.CODE_LENGTH) return;
 
     const newAttempts = [...this.attempts(), guess];
     this.attempts.set(newAttempts);
-    this.currentGuess.set('');
+    this.currentGuess.set("");
 
     if (guess === this.targetCode()) {
       this.gameOver.set(true);
-      this.message.set('Gratulacje! Wygrałeś! 🎉');
+      this.message.set("Gratulacje! Wygrałeś! 🎉");
     } else if (newAttempts.length >= this.MAX_ATTEMPTS) {
       this.gameOver.set(true);
       this.message.set(`Koniec gry! Kod to: ${this.targetCode()}`);
     }
   }
 
-  getCellStatus(attemptIndex: number, charIndex: number): Status {
+  private _getCellStatus(attemptIndex: number, charIndex: number): Status {
     const guess = this.attempts()[attemptIndex];
-    if (!guess) return 'empty';
+    if (!guess) return "empty";
     const char = guess[charIndex];
     const target = this.targetCode();
 
-    if (char === target[charIndex]) return 'correct';
+    if (char === target[charIndex]) return "correct";
 
-    const targetChars = target.split('');
-    const guessChars = guess.split('');
+    const targetChars = target.split("");
+    const guessChars = guess.split("");
     for (let i = 0; i < targetChars.length; i++) {
       if (guessChars[i] === targetChars[i]) {
-        targetChars[i] = '_';
-        guessChars[i] = '*';
+        targetChars[i] = "_";
+        guessChars[i] = "*";
       }
     }
-    return targetChars.includes(char) ? 'present' : 'absent';
-  }
-
-  getStats(guess: string): RowStats {
-    const target = this.targetCode();
-    let correctPos = 0;
-    let wrongPos = 0;
-
-    const targetArr = target.split('');
-    const guessArr = guess.split('');
-
-    // 1. Liczymy trafienia na pozycjach (Bulls)
-    for (let i = 0; i < this.CODE_LENGTH; i++) {
-      if (guessArr[i] === targetArr[i]) {
-        correctPos++;
-        targetArr[i] = 'T_USED'; // Oznaczamy jako zużyte
-        guessArr[i] = 'G_USED';
-      }
-    }
-
-    // 2. Liczymy trafienia cyfr w złych miejscach (Cows)
-    for (let i = 0; i < this.CODE_LENGTH; i++) {
-      if (guessArr[i] !== 'G_USED') {
-        const foundIndex = targetArr.indexOf(guessArr[i]);
-        if (foundIndex !== -1) {
-          wrongPos++;
-          targetArr[foundIndex] = 'T_USED';
-        }
-      }
-    }
-
-    return { correctPos, wrongPos };
+    return targetChars.includes(char) ? "present" : "absent";
   }
 }

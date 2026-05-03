@@ -1,0 +1,50 @@
+@use '../../variables' as var;
+
+.keyboard {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin-top: 1rem;
+  width: 85vmin;
+  gap: 1.5vmin;
+}
+
+.key {
+  height: 3rem;
+  font-size: clamp(1rem, 4vmin, 1.5rem);
+
+  border-radius: 0.3rem;
+  background-color: transparent;
+  border: solid 2px var.$color-absent;
+  color: var.$color-text;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.1s, transform 0.05s;
+
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  font-weight: bold;
+  user-select: none;
+
+  &:active {
+    background-color: var.$color-key-active;
+    transform: scale(0.95);
+  }
+
+  &:active {
+    background-color: var.$color-key-active;
+    transform: translateY(2px);
+  }
+
+  &--enter {
+    grid-column: span 3;
+    background-color: var.$color-absent;
+    font-size: 0.85rem;
+  }
+
+  &--del {
+    grid-column: span 2;
+    background-color: var.$color-absent;
+  }
+}

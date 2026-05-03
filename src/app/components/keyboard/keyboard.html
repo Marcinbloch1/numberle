@@ -1,0 +1,12 @@
+<div class="keyboard">
+  @for (key of keys; track key) {
+  <button
+    class="key"
+    [class.key--enter]="key === 'ENTER'"
+    [class.key--del]="key === '⌫'"
+    (click)="handleInput(key)"
+  >
+    {{ key }}
+  </button>
+  }
+</div>
